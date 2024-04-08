@@ -68,7 +68,7 @@ object Warehouse:
 
 /** Hints:
  * - Implement the Item with a simple case class
- * - Implement the Warehouse keeping a private List of items
+ * - Implement the Warehouse keeping a private Sequence of items
  * - Start implementing contains and store
  * - Implement searchItems using filter and contains
  * - Implement retrieve using find

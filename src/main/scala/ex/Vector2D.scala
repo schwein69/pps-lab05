@@ -6,6 +6,7 @@ import scala.math.sqrt // Needed for magnitude calculation
 // Structure: x-component and y-component
 trait Vector2D:
   def x: Double
+
   def y: Double
 
   // Vector addition: (x1, y1) + (x2, y2) = (x1+x2, y1+y2)
@@ -25,7 +26,19 @@ trait Vector2D:
 
 object Vector2D:
   // Factory method to create Vector2D instances
-  def apply(x: Double, y: Double): Vector2D = ???
+  def apply(x: Double, y: Double): Vector2D = Vector2DImpl(x, y)
+
+  private case class Vector2DImpl(override val x: Double, override val y: Double) extends Vector2D:
+
+    override def +(other: Vector2D): Vector2D = Vector2DImpl(x + other.x, y + other.y)
+
+    override def -(other: Vector2D): Vector2D = Vector2DImpl(x - other.x, y - other.y)
+
+    override def *(scalar: Double): Vector2D = Vector2DImpl(x * scalar, y * scalar)
+
+    override def dot(other: Vector2D): Double = (x * other.x) + (y * other.y)
+
+    override def magnitude: Double = sqrt(dot(Vector2DImpl(x, y)))
 
   // Common vectors (optional but nice)
   val zero: Vector2D = apply(0.0, 0.0)
@@ -36,7 +49,7 @@ object Vector2D:
 /** Hints:
  *   - Implement Vector2D with a Vector2DImpl class.
  *   - Initially, use a regular `class`. Check that equality (==) and
- *      toString do not behave as you might expect for a value object representing a vector.
+ *     toString do not behave as you might expect for a value object representing a vector.
  *   - Modify the implementation to use a `case class Vector2DImpl` instead.
  *   - Observe how equality (==) and toString now work correctly out-of-the-box.
  */

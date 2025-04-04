@@ -39,6 +39,8 @@ trait OnlineCoursePlatform:
 
   var studentSequence: Sequence[String] = Sequence.Nil()
 
+  var studentInCourse: Sequence[(String, Sequence[Course])] = Sequence.Nil()
+
   /**
    * Adds a new course to the platform's catalog.
    *
@@ -132,13 +134,15 @@ object OnlineCoursePlatform:
 
     override def findCoursesByCategory(category: String): Sequence[Course] = courseSequence.filter(c => c.category == category)
 
-    override def enrollStudent(studentId: String, courseId: String): Unit = ???
+    override def enrollStudent(studentId: String, courseId: String): Unit =
+      if isStudentEnrolled(studentId, courseId) then studentInCourse = studentInCourse.map(a => (a._1, a._2.concat(courseSequence.filter(c => c.courseId == courseId))))
+      else studentInCourse = studentInCourse.concat(Cons((studentId, courseSequence.filter(c => c.courseId == courseId)), Sequence.Nil()))
 
     override def getStudentEnrollments(studentId: String): Sequence[Course] = ???
 
     override def unenrollStudent(studentId: String, courseId: String): Unit = ???
 
-    override def isStudentEnrolled(studentId: String, courseId: String): Boolean = ???
+    override def isStudentEnrolled(studentId: String, courseId: String): Boolean = studentInCourse.map(a => (a._1, a._2)).contains((studentId, courseSequence.filter(c => c.courseId == courseId)))
 
     override def isCourseAvailable(courseId: String): Boolean = courseSequence.map(c => c.courseId).contains(courseId)
 
@@ -187,6 +191,7 @@ object OnlineCoursePlatform:
 
   println(s"Is Alice enrolled in SCALA01? ${platform.isStudentEnrolled(studentAlice, "SCALA01")}") // false
   platform.enrollStudent(studentAlice, "SCALA01")
+  println(platform.studentInCourse.toString)
   println(s"Is Alice enrolled in SCALA01? ${platform.isStudentEnrolled(studentAlice, "SCALA01")}") // true
   platform.enrollStudent(studentAlice, "DESIGN01")
   platform.enrollStudent(studentBob, "SCALA01") // Bob also enrolls in Scala

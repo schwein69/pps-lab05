@@ -135,18 +135,20 @@ object OnlineCoursePlatform:
     override def findCoursesByCategory(category: String): Sequence[Course] = courseSequence.filter(c => c.category == category)
 
     override def enrollStudent(studentId: String, courseId: String): Unit =
-      if isStudentEnrolled(studentId, courseId) then studentInCourse = studentInCourse.map(a => (a._1, a._2.concat(courseSequence.filter(c => c.courseId == courseId))))
+      if studentInCourse.map(a => a._1).contains(studentId) then studentInCourse = studentInCourse.filter(s => s._1 == studentId).map(a => (a._1, a._2.concat(courseSequence.filter(c => c.courseId == courseId))))
       else studentInCourse = studentInCourse.concat(Cons((studentId, courseSequence.filter(c => c.courseId == courseId)), Sequence.Nil()))
 
-    override def getStudentEnrollments(studentId: String): Sequence[Course] = ???
+    override def getStudentEnrollments(studentId: String): Sequence[Course] = studentInCourse.filter(a => a._1 == studentId) match
+      case Cons(h, _) => h._2
+      case _ => Sequence.Nil()
 
-    override def unenrollStudent(studentId: String, courseId: String): Unit = ???
+    override def unenrollStudent(studentId: String, courseId: String): Unit = studentInCourse = studentInCourse.filter(s => s._1 == studentId).map(a => (a._1, a._2.filter(c => c.courseId != courseId)))
 
     override def isStudentEnrolled(studentId: String, courseId: String): Boolean = studentInCourse.map(a => (a._1, a._2)).contains((studentId, courseSequence.filter(c => c.courseId == courseId)))
 
     override def isCourseAvailable(courseId: String): Boolean = courseSequence.map(c => c.courseId).contains(courseId)
 
-    override def removeCourse(course: Course): Unit = ???
+    override def removeCourse(course: Course): Unit = courseSequence = courseSequence.filter(c => c != course)
 
     override def addCourse(course: Course): Unit = courseSequence = courseSequence.concat(Cons(course, Sequence.Nil()))
 
@@ -191,10 +193,10 @@ object OnlineCoursePlatform:
 
   println(s"Is Alice enrolled in SCALA01? ${platform.isStudentEnrolled(studentAlice, "SCALA01")}") // false
   platform.enrollStudent(studentAlice, "SCALA01")
-  println(platform.studentInCourse.toString)
   println(s"Is Alice enrolled in SCALA01? ${platform.isStudentEnrolled(studentAlice, "SCALA01")}") // true
   platform.enrollStudent(studentAlice, "DESIGN01")
   platform.enrollStudent(studentBob, "SCALA01") // Bob also enrolls in Scala
+  println(platform.studentInCourse.toString)
 
   println(s"Alice's enrollments: ${platform.getStudentEnrollments(studentAlice)}") // Sequence(scalaCourse, designCourse) - Order might vary
   println(s"Bob's enrollments: ${platform.getStudentEnrollments(studentBob)}") // Sequence(scalaCourse)
